@@ -24,11 +24,14 @@ int main(void)
     srand((unsigned int)time(NULL));
 
     // Initialize the game grid and all you need to set up before starting the game loop (Creating Grid, Planting bombs, etc.)
-    // ...
+    Grid* grid = GridCreate();
+
+    sfVector2i currentCell = { -1,-1 };
+    
 
     printf("Start Game ! \n");
     bool bFirstTouch = true;
-
+    
     /* Start the game loop */
     while (sfRenderWindow_isOpen(window))
     {
@@ -42,7 +45,35 @@ int main(void)
             }
 
             // Handle all events here
-            // ...
+            if (event.type == sfEvtMouseMoved) {
+                currentCell = GridUpdateLoop(grid, window);
+            }
+
+            if (event.type == sfEvtMouseButtonPressed) {
+                if (event.key.code == sfMouseLeft) {
+                    if (currentCell.x >= 0 && &currentCell.y >= 0) {
+                        if (bFirstTouch) {
+                            bFirstTouch = false;
+                            GridPlantBomb(grid, BOMB_COUNT, currentCell);
+                        }
+                        switch (CellReveal(grid, currentCell)) {
+                            case FAILURE:
+                                printf("YOU LOSE !!");
+                                return FAILURE;
+                            case SUCCESS:
+                                printf("YOU WIN !!");
+                                return SUCCESS;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                if (event.key.code == sfMouseRight) {
+                    if (currentCell.x >= 0 && currentCell.y >= 0) {
+                        CellFlag(grid, currentCell);
+                    }
+                }
+            }
         }
 
         
@@ -50,14 +81,14 @@ int main(void)
         sfRenderWindow_clear(window, sfBlack);
         
         // Draw everything here
-        // ...
+        GridDraw(grid, window);
 
         /* Update the window */
         sfRenderWindow_display(window);
     }
 
     /* Cleanup resources */
-    // ...
+    GridDestroy(grid);
     sfRenderWindow_destroy(window);
 
     return SUCCESS;

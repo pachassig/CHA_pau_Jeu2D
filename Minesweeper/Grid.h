@@ -15,6 +15,9 @@ typedef struct Cell {
 	bool bFlagged;
 	bool bPlanted;
 	int explosiveNeighbor;
+	sfVector2f size;
+	sfVector2f pos;
+	sfColor color;
 } Cell;
 
 /// <summary>
