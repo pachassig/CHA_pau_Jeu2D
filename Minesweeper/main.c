@@ -34,7 +34,7 @@ int main(void)
     
     /* Start the game loop */
     while (sfRenderWindow_isOpen(window))
-    {
+    {   
         /* Process events */
         while (sfRenderWindow_pollEvent(window, &event))
         {
@@ -48,10 +48,10 @@ int main(void)
             if (event.type == sfEvtMouseMoved) {
                 currentCell = GridUpdateLoop(grid, window);
             }
-
+ 
             if (event.type == sfEvtMouseButtonPressed) {
-                if (event.key.code == sfMouseLeft) {
-                    if (currentCell.x >= 0 && &currentCell.y >= 0) {
+                if (event.mouseButton.button == sfMouseLeft) {
+                    if (currentCell.x >= 0 && currentCell.y >= 0) {
                         if (bFirstTouch) {
                             bFirstTouch = false;
                             GridPlantBomb(grid, BOMB_COUNT, currentCell);
@@ -68,7 +68,7 @@ int main(void)
                         }
                     }
                 }
-                if (event.key.code == sfMouseRight) {
+                if (event.mouseButton.button == sfMouseRight) {
                     if (currentCell.x >= 0 && currentCell.y >= 0) {
                         CellFlag(grid, currentCell);
                     }

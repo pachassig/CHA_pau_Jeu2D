@@ -24,6 +24,7 @@ Cell* CellCreate(sfVector2f size, sfVector2f pos, sfColor color)
 	// Finally set the size of your text with sfText_setCharacterSize(newText, size),
 	// where newText is your sfText pointer and size is a integer (int)
 	sfText_setCharacterSize(newText, (int)size.x);
+	sfText_setPosition(newText, pos);
 
 	// Use sfRectangleShape_create() to create a Rectangle and contains it in a sfRectangleShape pointer
 	sfRectangleShape* newShape = sfRectangleShape_create();
@@ -36,8 +37,6 @@ Cell* CellCreate(sfVector2f size, sfVector2f pos, sfColor color)
 	// Finally set its color with sfRectangleShape_setFillColor(newShape, color),
 	// where newShape is your sfRectangleShape pointer and color is a sfColor
 	sfRectangleShape_setFillColor(newShape, color);
-
-
 
 	Cell* newCell = (Cell*)malloc(sizeof(Cell));
 	newCell->shape = newShape;
@@ -58,7 +57,6 @@ void CellDraw(Cell* cell, sfRenderWindow* window)
 {
 	// Draw the cell shape and text on the window 
 	if (cell->shape) {
-		sfRenderWindow_setPosition(window, (sfVector2i) { cell->pos.x, cell->pos.y });
 		sfRenderWindow_drawText(window, cell->text, NULL);
 		sfRenderWindow_drawRectangleShape(window, cell->shape, NULL);
 	}
@@ -80,11 +78,39 @@ int CellReveal(Grid* grid, sfVector2i cellGridPos)
 	
 	// Change the cell's appearance to revealed (lighter color) and mark it as discovered
 	cell->bDiscovered = true;
-	sfRectangleShape_setFillColor(cell->shape, sfColor_fromRGBA(255, 255, 255, 0));
+	sfRectangleShape_setFillColor(cell->shape, sfColor_fromRGBA(0, 255, 0, 100));
 
 	// If the cell has explosive neighbors, display the number
 	if (cell->explosiveNeighbor > 0) {
-		sfText_setString(cell->text, cell->explosiveNeighbor);
+		switch (cell->explosiveNeighbor) {
+		case 1:
+			sfText_setString(cell->text, "1");
+			break;
+		case 2:
+			sfText_setString(cell->text, "2");
+			break;
+		case 3:
+			sfText_setString(cell->text, "3");
+			break;
+		case 4:
+			sfText_setString(cell->text, "4");
+			break;
+		case 5:
+			sfText_setString(cell->text, "5");
+			break;
+		case 6:
+			sfText_setString(cell->text, "6");
+			break;
+		case 7:
+			sfText_setString(cell->text, "7");
+			break;
+		case 8:
+			sfText_setString(cell->text, "8");
+			break;
+		default:
+			break;
+		}
+		
 	}
 
 	// If the cell is completely empty (explosiveNeighbor == 0), start the "flood fill" (reveal neighbors) algorithm
@@ -136,8 +162,15 @@ void CellFlag(Grid* grid, sfVector2i cellGridPos)
 	}
 
 	// Toggle the flagged state of the cell and update its appearance accordingly
-	sfRectangleShape_setFillColor(cell->shape, sfColor_fromRGBA(255, 10, 10, 255));
-	cell->bFlagged = true;
+	if (cell->bFlagged == false)
+	{
+		sfRectangleShape_setFillColor(cell->shape, sfColor_fromRGBA(255, 10, 10, 255));
+		cell->bFlagged = true;
+	}
+	else {
+		sfRectangleShape_setFillColor(cell->shape, sfColor_fromRGBA(255, 255, 255, 255));
+		cell->bFlagged = false;
+	}
 	return;
 }
 
@@ -181,7 +214,17 @@ void GridPlantBomb(Grid* grid, int bombCount, sfVector2i cellToAvoid)
 			colonne = rand() % GRID_SIZE;
 			ligne = rand() % GRID_SIZE;
 			bomb_cell = grid->cells[colonne][ligne];
-		} while (bomb_cell->bPlanted == true || (colonne == cellToAvoid.x && ligne == cellToAvoid.y));
+		} while (bomb_cell->bPlanted == true 
+			|| (colonne == cellToAvoid.x && ligne == cellToAvoid.y)
+			|| (colonne == cellToAvoid.x+1 && ligne == cellToAvoid.y)
+			|| (colonne == cellToAvoid.x - 1 && ligne == cellToAvoid.y)
+			|| (colonne == cellToAvoid.x && ligne == cellToAvoid.y+1)
+			|| (colonne == cellToAvoid.x + 1 && ligne == cellToAvoid.y+1)
+			|| (colonne == cellToAvoid.x - 1 && ligne == cellToAvoid.y+1)
+			|| (colonne == cellToAvoid.x && ligne == cellToAvoid.y-1)
+			|| (colonne == cellToAvoid.x + 1 && ligne == cellToAvoid.y-1)
+			|| (colonne == cellToAvoid.x - 1 && ligne == cellToAvoid.y-1)
+			);
 		bomb_cell->bPlanted = true;
 	}
 
@@ -232,23 +275,22 @@ void GridPlantBomb(Grid* grid, int bombCount, sfVector2i cellToAvoid)
 	}
 }
 
-sfVector2i GridUpdateLoop(Grid* grid, sfRenderWindow* window) 
+sfVector2i GridUpdateLoop(Grid* grid, sfRenderWindow* window)
 {
 	// Get mouse position relative to the window
 	sfVector2i mousePos = sfMouse_getPositionRenderWindow(window);
 
 	// Initialize hovered cell coordinates to (-1, -1) (no cell hovered)
-	sfVector2i cellCoord = { -1, -1 };
+	sfVector2i cellCoord = { (mousePos.x / CELL_SIZE)-1, (mousePos.y / CELL_SIZE) - 1};
 
 	// Search for hovered cell (if any)
 	// Return cell coordinates or (-1, -1) if no cell is hovered
 	// Use global bounds and contains function from SFML to detect if mouse is over a cell
-	sfVector2i position_souris = sfMouse_getPositionRenderWindow(window);
-	if (position_souris.x!=NULL && position_souris.y!=NULL)
-	{
-		cellCoord = (sfVector2i){ (position_souris.x - GRID_OFFSET) % CELL_SIZE + GRID_OFFSET,(position_souris.y - GRID_OFFSET) % CELL_SIZE + GRID_OFFSET };
+	if (cellCoord.x >= 0 && cellCoord.x < GRID_SIZE && cellCoord.y >= 0 && cellCoord.y < GRID_SIZE) {
+		return cellCoord;
 	}
-	return cellCoord;
+
+	return (sfVector2i) { -1, -1 };
 }
 
 void GridDraw(Grid* grid, sfRenderWindow* window)
@@ -266,7 +308,10 @@ void GridDestroy(Grid* grid)
 	// Free all resources associated with the grid and its cells
 	for (int i = 0; i < GRID_SIZE; i++) {
 		for (int j = 0; j < GRID_SIZE; j++) {
-			CellDestroy(grid->cells[i][j]);
+			if (grid->cells[i][j] !=NULL)
+			{
+				CellDestroy(grid->cells[i][j]);
+			}
 		}
 	}
 	free(grid);
