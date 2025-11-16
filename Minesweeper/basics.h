@@ -9,19 +9,19 @@
 /// Use this enum to define some parameters of the window
 /// </summary>
 enum WindowParam {
-    WIDTH = 1920,
-    HEIGHT = 1920,
+    WIDTH = 800,
+    HEIGHT = 800,
 };
 
 /// <summary>
 /// Use this enum to define some parameters of the Minesweeper grid
 /// </summary>
 enum MinesweeperParam {
-    GRID_SIZE = 20,
+    GRID_SIZE = 10,
     GRID_OFFSET = 50,
     CELL_SIZE = 66,
     CELL_OFFSET = 4,
-    BOMB_COUNT = 30,
+    BOMB_COUNT = 15,
 };
 
 /// <summary>
