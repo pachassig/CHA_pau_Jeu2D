@@ -280,26 +280,8 @@ sfVector2i GridUpdateLoop(Grid* grid, sfRenderWindow* window)
 	// Get mouse position relative to the window
 	sfVector2i mousePos = sfMouse_getPositionRenderWindow(window);
 
-
-
-	/*
-	sfVector2i cellCoord;
-	for (int i = 0; i < GRID_SIZE; i++) {
-		for (int j = 0; j < GRID_SIZE; j++) {
-			Cell* currentCell = grid->cells[i][j];
-			if (IsContained(mousePos, currentCell->shape)) {
-				cellCoord = (sfVector2i){ currentCell->pos.x ,currentCell->pos.y };
-				return cellCoord;
-			}
-		}
-	}
-	*/
-
-
-
-
 	// Initialize hovered cell coordinates to (-1, -1) (no cell hovered)
-	sfVector2i cellCoord = { (mousePos.x / CELL_SIZE) - 1, (mousePos.y / CELL_SIZE) - 1 };
+	sfVector2i cellCoord = { ((mousePos.x - GRID_OFFSET) / (CELL_SIZE + CELL_OFFSET)) , ((mousePos.y - GRID_OFFSET )/ (CELL_SIZE + CELL_OFFSET))  };
 	// Search for hovered cell (if any)
 	// Return cell coordinates or (-1, -1) if no cell is hovered
 	// Use global bounds and contains function from SFML to detect if mouse is over a cell
